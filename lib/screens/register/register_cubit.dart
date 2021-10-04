@@ -32,7 +32,7 @@ class RegisterCubit extends Cubit<RegisterStates> {
       required String email,
       required String phone,
       required String uid}) {
-    new_user.User user = new_user.User(
+    new_user.UserModel user = new_user.UserModel(
         name: name,
         email: email,
         uid: uid,

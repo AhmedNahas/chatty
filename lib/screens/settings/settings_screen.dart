@@ -1,6 +1,7 @@
-import 'package:chatty/components/reusable_comp/widgets/reusable_component.dart';
+import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/main_cubit/states.dart';
+import 'package:chatty/screens/edit_profile/edit_profile_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +12,7 @@ class SettingsScreen extends StatelessWidget {
     return BlocConsumer<MainCubit, MainCubitStates>(
       listener: (ctx, state) {},
       builder: (ctx, state) {
-        var cubit = MainCubit.get(context).userModel;
+        var cubit = MainCubit.get(context);
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -30,7 +31,7 @@ class SettingsScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10.0),
                           image: DecorationImage(
                             fit: BoxFit.cover,
-                            image: NetworkImage(cubit!.cover),
+                            image: NetworkImage(cubit.userModel!.cover),
                           ),
                         ),
                       ),
@@ -41,18 +42,18 @@ class SettingsScreen extends StatelessWidget {
                           Theme.of(context).scaffoldBackgroundColor,
                       child: CircleAvatar(
                         radius: 60.0,
-                        backgroundImage: NetworkImage(cubit!.image),
+                        backgroundImage: NetworkImage(cubit.userModel!.image),
                       ),
                     ),
                   ],
                 ),
               ),
               Text(
-                cubit.name,
+                cubit.userModel!.name,
                 style: Theme.of(context).textTheme.bodyText1,
               ),
               Text(
-                cubit.bio,
+                cubit.userModel!.bio,
                 style: Theme.of(context).textTheme.caption,
               ),
               Padding(
@@ -120,11 +121,17 @@ class SettingsScreen extends StatelessWidget {
               ),
               Row(children: [
                 Expanded(
-                  child: OutlinedButton(onPressed: () {  },
-                  child: const Text('Add Photos'),),
+                  child: OutlinedButton(
+                    onPressed: () {},
+                    child: const Text('Add Photos'),
+                  ),
                 ),
-                OutlinedButton(onPressed: () {  },
-                  child: const Icon(Icons.edit),)
+                OutlinedButton(
+                  onPressed: () {
+                    navigateTo(context, EditProfileScreen());
+                  },
+                  child: const Icon(Icons.edit),
+                )
               ])
             ],
           ),

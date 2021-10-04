@@ -1,4 +1,5 @@
 import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
+import 'package:chatty/components/reusable_comp/widgets/reusable_component.dart';
 import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/main_cubit/states.dart';
 import 'package:chatty/screens/new_post/new_post.dart';
@@ -11,65 +12,64 @@ import 'package:flutter_conditional_rendering/conditional.dart';
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<MainCubit, MainCubitStates>(
-        listener: (context, state) {
-          if(state is NewPostState){
-            navigateTo(context, NewPost());
-          }
-        },
-        builder: (context, state) {
-          var cubit = MainCubit.get(context);
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(cubit.titles[cubit.currentIndex]),
-              actions: [
-                IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.notification_important_outlined)),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-              ],
-            ),
-            body: cubit.screens[cubit.currentIndex],
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: cubit.currentIndex,
-              onTap: (index) => cubit.changeBottomNavScreen(index),
-              backgroundColor: Colors.grey.shade100,
-              items: const [
-                BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.home_filled,
-                      color: Colors.blueAccent,
-                    ),
-                    label: "Home",
-                    backgroundColor: Colors.black),
-                BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.chat_rounded,
-                      color: Colors.blueAccent,
-                    ),
-                    label: "Chats"),
-                BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.blueAccent,
-                    ),
-                    label: "Add"),
-                BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.supervised_user_circle_sharp,
-                      color: Colors.blueAccent,
-                    ),
-                    label: "Users"),
-                BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.settings,
-                      color: Colors.blueAccent,
-                    ),
-                    label: "Settings"),
-              ],
-            ),
-          );
-        });
+    return BlocConsumer<MainCubit, MainCubitStates>(listener: (context, state) {
+      if (state is NewPostState) {
+        navigateTo(context, NewPost());
+      }
+    }, builder: (context, state) {
+      var cubit = MainCubit.get(context);
+      return Scaffold(
+        appBar: defaultAppBar(
+          context: context,
+          title: cubit.titles[cubit.currentIndex],
+          actions: [
+            IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.notification_important_outlined,color: Colors.black26,)),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.search,color: Colors.black26,)),
+          ], showLeading: false,
+        ),
+        body: cubit.screens[cubit.currentIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          fixedColor: Colors.black,
+          currentIndex: cubit.currentIndex,
+          onTap: (index) => cubit.changeBottomNavScreen(index),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home_filled,
+                  color: Colors.blueAccent,
+                ),
+                label: "Home",),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.chat_rounded,
+                  color: Colors.blueAccent,
+                ),
+                label: "Chats"),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.add_circle_outline,
+                  color: Colors.blueAccent,
+                ),
+                label: "Add"),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.supervised_user_circle_sharp,
+                  color: Colors.blueAccent,
+                ),
+                label: "Users"),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.settings,
+                  color: Colors.blueAccent,
+                ),
+                label: "Settings"),
+          ],
+        ),
+      );
+    });
   }
 
   Widget buildHomeUI() => Column();

@@ -1,54 +1,71 @@
+import 'package:chatty/main_cubit/cubit.dart';
+import 'package:chatty/main_cubit/states.dart';
+import 'package:chatty/model/post_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_conditional_rendering/flutter_conditional_rendering.dart';
 
 class FeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        children: [
-          Card(
-            elevation: 10.0,
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            margin: const EdgeInsets.all(8.0),
-            child: Stack(
-              children: [
-                const Image(
-                  fit: BoxFit.cover,
-                  height: 200.0,
-                  width: double.infinity,
-                  image: NetworkImage(
-                      'https://cdn.dribbble.com/users/1355613/screenshots/6533809/invoice_maker_4x.jpg?compress=1&resize=1200x900'),
+    return BlocConsumer<MainCubit, MainCubitStates>(
+      listener: (ctx, state) {},
+      builder: (ctx, state) {
+        var cubit = MainCubit.get(ctx);
+        return Conditional.single(
+            context: context,
+            conditionBuilder: (ctx) => cubit.posts.isNotEmpty,
+            widgetBuilder: (ctx){
+              return SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Card(
+                      elevation: 10.0,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      margin: const EdgeInsets.all(8.0),
+                      child: Stack(
+                        children: [
+                          const Image(
+                            fit: BoxFit.cover,
+                            height: 200.0,
+                            width: double.infinity,
+                            image: NetworkImage(
+                                'https://cdn.dribbble.com/users/1355613/screenshots/6533809/invoice_maker_4x.jpg?compress=1&resize=1200x900'),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              "Meet\nnew\nfriends",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle1!
+                                  .copyWith(fontStyle: FontStyle.italic),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    ListView.separated(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (ctx, i) => buildPostItem(ctx, cubit.posts[i]),
+                        separatorBuilder: (ctx, i) => const SizedBox(
+                          height: 10.0,
+                        ),
+                        itemCount: cubit.posts.length)
+                  ],
                 ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    "Meet\nnew\nfriends",
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle1!
-                        .copyWith(fontStyle: FontStyle.italic),
-                  ),
-                )
-              ],
-            ),
-          ),
-          ListView.separated(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (ctx, i) => buildPostItem(ctx),
-              separatorBuilder: (ctx, i) => const SizedBox(
-                    height: 10.0,
-                  ),
-              itemCount: 10)
-        ],
-      ),
+              );
+            },
+            fallbackBuilder: (ctx){return const CircularProgressIndicator();});
+      },
     );
   }
 
-  Widget buildPostItem(context) => Card(
+  Widget buildPostItem(context, PostModel post) => Card(
         elevation: 10.0,
         clipBehavior: Clip.antiAliasWithSaveLayer,
         margin: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -58,10 +75,9 @@ class FeedScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 25.0,
-                    backgroundImage: NetworkImage(
-                        'https://cdn.dribbble.com/users/1355613/screenshots/15234311/media/863e1b6962855907bf7b31f09a4c3eb1.jpg?compress=1&resize=1200x900'),
+                    backgroundImage: NetworkImage(post.image),
                   ),
                   const SizedBox(
                     width: 20.0,
@@ -71,14 +87,14 @@ class FeedScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Ahmed El-Nahas",
+                          post.name,
                           style: Theme.of(context)
                               .textTheme
                               .caption!
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          "Novemver 19 , 2021 at 11:00 PM",
+                          post.dateTime,
                           style: Theme.of(context)
                               .textTheme
                               .caption!
@@ -102,23 +118,22 @@ class FeedScreen extends StatelessWidget {
                   color: Colors.grey[300],
                 ),
               ),
-              const Text(
-                  "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."),
+              Text(post.body),
               const SizedBox(
                 height: 8.0,
               ),
-              Container(
-                height: 140.0,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  image: const DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(
-                        'https://cdn.dribbble.com/users/1355613/screenshots/15252730/media/28f348daf9654c440f5dcf398d8e097a.jpg?compress=1&resize=1200x900'),
+              if (post.postImage != null && post.postImage.isNotEmpty)
+                Container(
+                  height: 140.0,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(post.postImage),
+                    ),
                   ),
                 ),
-              ),
               Row(
                 children: [
                   Expanded(
@@ -161,10 +176,9 @@ class FeedScreen extends StatelessWidget {
               ),
               Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 18.0,
-                    backgroundImage: NetworkImage(
-                        'https://cdn.dribbble.com/users/1355613/screenshots/15234311/media/863e1b6962855907bf7b31f09a4c3eb1.jpg?compress=1&resize=1200x900'),
+                    backgroundImage: NetworkImage(post.image),
                   ),
                   const SizedBox(
                     width: 20.0,

@@ -1,4 +1,4 @@
-class User {
+class UserModel {
   late String name;
   late String email;
   late String uid;
@@ -8,7 +8,7 @@ class User {
   late String cover;
   late String bio;
 
-  User({
+  UserModel({
     required this.name,
     required this.email,
     required this.uid,
@@ -19,7 +19,7 @@ class User {
     required this.bio,
   });
 
-  User.fromJson(Map<String, dynamic> json) {
+  UserModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     email = json['email'];
     uid = json['uid'];

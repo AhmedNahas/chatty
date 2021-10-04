@@ -50,3 +50,28 @@ Widget defaultButton({
         ),
       ),
     );
+
+AppBar defaultAppBar(
+        {required BuildContext context,
+        String? title,
+        List<Widget>? actions,
+        required bool showLeading}) =>
+    AppBar(
+      leading: showLeading
+          ? IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(
+                Icons.arrow_back_ios_outlined,
+                color: Colors.black,
+              ),
+            )
+          : null,
+      title: Text(
+        title!,
+        style: Theme.of(context).textTheme.subtitle1,
+      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      actions: actions,
+    );
