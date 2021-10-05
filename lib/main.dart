@@ -1,4 +1,5 @@
 import 'package:chatty/main_cubit/cubit.dart';
+import 'package:chatty/screens/feeds/feeds_cubit.dart';
 import 'package:chatty/screens/home/home_screen.dart';
 import 'package:chatty/screens/login/login_screen.dart';
 import 'package:chatty/screens/register/register_screen.dart';
@@ -37,7 +38,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => MainCubit()..getUserData()..getPosts())],
+      providers: [
+        BlocProvider(create: (context) => MainCubit()..getUserData()..getAllUsers()),
+        BlocProvider(create: (context) => FeedsCubit()..getPosts())
+      ],
       child: BlocConsumer<MainCubit, MainCubitStates>(
         listener: (BuildContext context, Object? state) {},
         builder: (BuildContext context, state) {

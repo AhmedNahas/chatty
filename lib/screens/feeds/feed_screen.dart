@@ -1,28 +1,32 @@
-import 'package:chatty/main_cubit/cubit.dart';
-import 'package:chatty/main_cubit/states.dart';
 import 'package:chatty/model/post_model.dart';
+import 'package:chatty/screens/feeds/feeds_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_conditional_rendering/flutter_conditional_rendering.dart';
 
+import 'feeds_states.dart';
+
 class FeedScreen extends StatelessWidget {
+  const FeedScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<MainCubit, MainCubitStates>(
-      listener: (ctx, state) {},
+    var commentController = TextEditingController();
+
+    return BlocConsumer<FeedsCubit, FeedCubitStates>(
+      listener: (ctx, state) {
+      },
       builder: (ctx, state) {
-        var cubit = MainCubit.get(ctx);
-        return Conditional.single(
-            context: context,
-            conditionBuilder: (ctx) => cubit.posts.isNotEmpty,
-            widgetBuilder: (ctx){
-              return SingleChildScrollView(
+        var cubit = FeedsCubit.get(ctx);
+        return state is PostsLoadingState
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   children: [
-                    Card(
+                    /*Card(
                       elevation: 10.0,
                       clipBehavior: Clip.antiAliasWithSaveLayer,
                       margin: const EdgeInsets.all(8.0),
@@ -47,31 +51,33 @@ class FeedScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                    ),
+                    ),*/
                     ListView.separated(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        itemBuilder: (ctx, i) => buildPostItem(ctx, cubit.posts[i]),
+                        itemBuilder: (ctx, i) => buildPostItem(
+                            ctx, cubit.posts[i], cubit, i, commentController),
                         separatorBuilder: (ctx, i) => const SizedBox(
-                          height: 10.0,
-                        ),
+                              height: 10.0,
+                            ),
                         itemCount: cubit.posts.length)
                   ],
                 ),
               );
-            },
-            fallbackBuilder: (ctx){return const CircularProgressIndicator();});
       },
     );
   }
 
-  Widget buildPostItem(context, PostModel post) => Card(
+  Widget buildPostItem(context, PostModel post, FeedsCubit cubit, int index,
+          TextEditingController commentController) =>
+      Card(
         elevation: 10.0,
         clipBehavior: Clip.antiAliasWithSaveLayer,
         margin: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
@@ -119,10 +125,11 @@ class FeedScreen extends StatelessWidget {
                 ),
               ),
               Text(post.body),
-              const SizedBox(
-                height: 8.0,
-              ),
-              if (post.postImage != null && post.postImage.isNotEmpty)
+              if (post.postImage != null && post.postImage!.isNotEmpty)
+                const SizedBox(
+                  height: 8.0,
+                ),
+              if (post.postImage != null && post.postImage!.isNotEmpty)
                 Container(
                   height: 140.0,
                   width: double.infinity,
@@ -130,7 +137,7 @@ class FeedScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10.0),
                     image: DecorationImage(
                       fit: BoxFit.cover,
-                      image: NetworkImage(post.postImage),
+                      image: NetworkImage(post.postImage ?? ''),
                     ),
                   ),
                 ),
@@ -147,7 +154,7 @@ class FeedScreen extends StatelessWidget {
                               color: Theme.of(context).colorScheme.primary,
                             )),
                         Text(
-                          "122",
+                          "${cubit.likes.length}",
                           style: Theme.of(context).textTheme.caption,
                         )
                       ],
@@ -163,7 +170,7 @@ class FeedScreen extends StatelessWidget {
                             color: Theme.of(context).colorScheme.primary,
                           )),
                       Text(
-                        "122 comment",
+                        "${cubit.comments.length} comment",
                         style: Theme.of(context).textTheme.caption,
                       )
                     ],
@@ -183,7 +190,7 @@ class FeedScreen extends StatelessWidget {
                   const SizedBox(
                     width: 20.0,
                   ),
-                  Expanded(
+                  /*Expanded(
                     child: InkWell(
                       child: Text(
                         "write a comment ...",
@@ -192,7 +199,21 @@ class FeedScreen extends StatelessWidget {
                             .caption!
                             .copyWith(height: 2.0),
                       ),
-                      onTap: () {},
+                      onTap: () {
+
+                      },
+                    ),
+                  ),*/
+                  Expanded(
+                    child: TextFormField(
+                      onTap: () {
+                        print('tapped');
+                      },
+                      controller: commentController,
+                      decoration: const InputDecoration(
+                          hintText: "Write a comment ...",
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(fontSize: 13.0)),
                     ),
                   ),
                   const SizedBox(
@@ -203,7 +224,11 @@ class FeedScreen extends StatelessWidget {
                       Row(
                         children: [
                           IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                // cubit.likePost(cubit.postsIds[index]);
+                                cubit.commentOnPost(cubit.postsIds[index],
+                                    commentController.text);
+                              },
                               iconSize: 20.0,
                               icon: Icon(
                                 Icons.thumb_up_alt_outlined,

@@ -4,7 +4,7 @@ class PostModel {
   late String image;
   late String dateTime;
   late String body;
-  late String postImage;
+  late String? postImage;
 
   PostModel({
     required this.name,

@@ -11,15 +11,6 @@ class MainCubitErrorState extends MainCubitStates{
   MainCubitErrorState(this.error);
 }
 
-class PostsLoadingState extends MainCubitStates{}
-
-class PostsSuccessState extends MainCubitStates{}
-
-class PostsErrorState extends MainCubitStates{
-  final String error;
-  PostsErrorState(this.error);
-}
-
 class BottomNavStates extends MainCubitStates{}
 
 class NewPostState extends MainCubitStates{}
@@ -64,3 +55,26 @@ class PickPostImageSuccessState extends MainCubitStates{}
 class PickPostImageErrorState extends MainCubitStates{}
 
 class RemovePostImageState extends MainCubitStates{}
+
+class UsersLoadingState extends MainCubitStates{}
+
+class UsersSuccessState extends MainCubitStates{}
+
+class UsersErrorState extends MainCubitStates{
+  final String error;
+  UsersErrorState(this.error);
+}
+
+class SendMessageSuccessState extends MainCubitStates{}
+
+class SendMessageErrorState extends MainCubitStates{
+  final String error;
+  SendMessageErrorState(this.error);
+}
+
+class GetAllMessageSuccessState extends MainCubitStates{}
+
+class GetAllMessageErrorState extends MainCubitStates{
+  final String error;
+  GetAllMessageErrorState(this.error);
+}

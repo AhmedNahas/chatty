@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chatty/constants/constants.dart';
 import 'package:chatty/main_cubit/states.dart';
+import 'package:chatty/model/message_model.dart';
 import 'package:chatty/model/post_model.dart';
 import 'package:chatty/model/user_model.dart';
 import 'package:chatty/screens/chats/chat_screen.dart';
@@ -23,25 +24,7 @@ class MainCubit extends Cubit<MainCubitStates> {
   UserModel? userModel;
   String? profileImageUrl;
   String? coverImageUrl;
-
-  void getUserData() {
-    emit(MainCubitLoadingState());
-    FirebaseFirestore.instance
-        .collection(Constants.collectionName)
-        .doc(uid)
-        .get()
-        .then((value) {
-      userModel = UserModel.fromJson(value.data()!);
-      profileImageUrl = userModel!.image;
-      coverImageUrl = userModel!.cover;
-      emit(MainCubitSuccessState());
-    }).catchError((error) {
-      emit(MainCubitErrorState(error.toString()));
-    });
-  }
-
   int currentIndex = 0;
-
   List<Widget> screens = [
     FeedScreen(),
     ChatScreen(),
@@ -49,8 +32,26 @@ class MainCubit extends Cubit<MainCubitStates> {
     UsersScreen(),
     SettingsScreen()
   ];
-
   List<String> titles = ["Feeds", "Chats", "Add", "Users", "Settings"];
+  File? profileImage;
+  var picker = ImagePicker();
+  File? coverImage;
+  File? postImageFile;
+
+  void getUserData() {
+    emit(MainCubitLoadingState());
+    FirebaseFirestore.instance
+        .collection(Constants.collectionUsers)
+        .doc(uid)
+        .get()
+        .then((value) {
+      userModel = UserModel.fromJson(value.data()!);
+      profileImageUrl = userModel!.image;
+      coverImageUrl = userModel!.cover;
+    }).catchError((error) {
+      emit(MainCubitErrorState(error.toString()));
+    });
+  }
 
   void changeBottomNavScreen(int index) {
     if (index == 2) {
@@ -61,9 +62,6 @@ class MainCubit extends Cubit<MainCubitStates> {
     }
   }
 
-  File? profileImage;
-  var picker = ImagePicker();
-
   Future getProfileImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
@@ -71,12 +69,9 @@ class MainCubit extends Cubit<MainCubitStates> {
       profileImage = File(pickedFile.path);
       emit(PicProfileImageSuccessState());
     } else {
-      print("no file");
       emit(PicProfileImageErrorState());
     }
   }
-
-  File? coverImage;
 
   Future getCoverImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -92,14 +87,20 @@ class MainCubit extends Cubit<MainCubitStates> {
   Future<firebase_storage.TaskSnapshot> uploadProfilePicture() async {
     return await firebase_storage.FirebaseStorage.instance
         .ref()
-        .child('users/${Uri.file(profileImage!.path).pathSegments.last}')
+        .child('users/${Uri
+        .file(profileImage!.path)
+        .pathSegments
+        .last}')
         .putFile(profileImage!);
   }
 
   Future<firebase_storage.TaskSnapshot> uploadCoverPicture() async {
     return await firebase_storage.FirebaseStorage.instance
         .ref()
-        .child('users/${Uri.file(coverImage!.path).pathSegments.last}')
+        .child('users/${Uri
+        .file(coverImage!.path)
+        .pathSegments
+        .last}')
         .putFile(coverImage!);
   }
 
@@ -162,8 +163,6 @@ class MainCubit extends Cubit<MainCubitStates> {
     });
   }
 
-  File? postImageFile;
-
   Future getPostImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -175,36 +174,38 @@ class MainCubit extends Cubit<MainCubitStates> {
   }
 
   void createPostWithPicIfExist(
-      {required String dateTime,
-      required String body}) async {
+      {required String dateTime, required String body}) async {
     emit(CreatePostLoadingState());
     if (postImageFile != null) {
       firebase_storage.FirebaseStorage.instance
           .ref()
-          .child('posts/${Uri.file(postImageFile!.path).pathSegments.last}')
+          .child('posts/${Uri
+          .file(postImageFile!.path)
+          .pathSegments
+          .last}')
           .putFile(postImageFile!)
           .then((v) {
         v.ref.getDownloadURL().then((postImageUrl) {
-          createPost(dateTime: dateTime, body: body,postImage: postImageUrl);
+          createPost(dateTime: dateTime, body: body, postImage: postImageUrl);
         }).catchError((error) {
           emit(CreatePostErrorState(error.toString()));
         });
       }).catchError((error) {
         emit(CreatePostErrorState(error.toString()));
       });
-    }else{
+    } else {
       createPost(dateTime: dateTime, body: body);
     }
   }
-  void createPost({required String dateTime,
-    required String body,
-    String? postImage}){
+
+  void createPost(
+      {required String dateTime, required String body, String? postImage}) {
     PostModel post = PostModel(
       name: userModel!.name,
       uid: userModel!.uid,
-      image:userModel!.image,
+      image: userModel!.image,
       body: body,
-      postImage: postImage??"",
+      postImage: postImage ?? "",
       dateTime: dateTime,
     );
     FirebaseFirestore.instance
@@ -222,19 +223,106 @@ class MainCubit extends Cubit<MainCubitStates> {
     emit(RemovePostImageState());
   }
 
-List<PostModel> posts = [];
-  void getPosts() {
-    emit(PostsLoadingState());
+  List<PostModel> posts = [];
+  List<String>? postsIds = [];
+  List<int>? likes = [];
+  List<int>? comments = [];
+
+  Future getLikes(QueryDocumentSnapshot<Map<String, dynamic>> element) async {
+    await element.reference
+        .collection(Constants.collectionLikes)
+        .get()
+        .then((likesV) {
+      print('${likesV.docs.length} likes');
+      likes!.add(likesV.docs.length);
+    }).catchError((error) {
+      print(error.toString());
+    });
+  }
+
+  Future getComments(
+      QueryDocumentSnapshot<Map<String, dynamic>> element) async {
+    await element.reference
+        .collection(Constants.collectionComments)
+        .get()
+        .then((commentsV) {
+      print('${commentsV.docs.length} comments');
+      comments!.add(commentsV.docs.length);
+    }).catchError((error) {
+      print(error.toString());
+    });
+  }
+
+  void commentOnPost(String postId, String comment) {
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
+        .doc(postId)
+        .collection(Constants.collectionComments)
+        .doc(uid)
+        .set({'comment': comment})
+        .then((value) {})
+        .catchError((error) {});
+  }
+
+  List<UserModel> users = [];
+
+  void getAllUsers() {
+    emit(UsersLoadingState());
+    FirebaseFirestore.instance
+        .collection(Constants.collectionUsers)
         .get()
         .then((value) {
-          for (var element in value.docs) {
-            posts.add(PostModel.fromJson(element.data()));
-          }
-      emit(PostsSuccessState());
+      for (var element in value.docs) {
+        if (element.data()['uid'] != uid) {
+          users.add(UserModel.fromJson(element.data()));
+        }
+      }
+      emit(UsersSuccessState());
     }).catchError((error) {
-      emit(PostsErrorState(error.toString()));
+      emit(UsersErrorState(error.toString()));
     });
+  }
+
+  void sendMessage({
+    required String receiverId,
+    required String dateTime,
+    required String msg,
+    required String msgType,
+  }) {
+    MessageModel newMessage = MessageModel(
+        senderId: userModel!.uid,
+        receiverId: receiverId,
+        dateTime: dateTime,
+        msg: msg,
+        msgType: msgType);
+
+    FirebaseFirestore.instance
+    .collection(Constants.collectionUsers)
+    .doc(userModel!.uid)
+    .collection(Constants.collectionChats)
+    .doc(receiverId)
+    .collection(Constants.collectionMessages)
+    .add(newMessage.toJson())
+    .then((value) {
+      emit(SendMessageSuccessState());
+    })
+    .catchError((error){
+      emit(SendMessageErrorState(error.toString()));
+    });
+
+    FirebaseFirestore.instance
+        .collection(Constants.collectionUsers)
+        .doc(receiverId)
+        .collection(Constants.collectionChats)
+        .doc(userModel!.uid)
+        .collection(Constants.collectionMessages)
+        .add(newMessage.toJson())
+        .then((value) {
+      emit(SendMessageSuccessState());
+    })
+        .catchError((error){
+      emit(SendMessageErrorState(error.toString()));
+    });
+
   }
 }
