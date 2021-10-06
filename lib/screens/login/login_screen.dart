@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/components/reusable_comp/widgets/reusable_component.dart';
+import 'package:chatty/constants/constants.dart';
 import 'package:chatty/helper/cache_helper.dart';
 import 'package:chatty/screens/home/home_screen.dart';
 import 'package:chatty/screens/login/login_cubit.dart';
@@ -22,6 +23,7 @@ class LoginScreen extends StatelessWidget {
         listener: (ctx, state) {
           if (state is LoginSuccessState) {
             CacheHelper.putData(key: "uid", value: state.uid).then((value) {
+              uid = state.uid;
               navigateAndFinish(context, HomeScreen());
             });
           }

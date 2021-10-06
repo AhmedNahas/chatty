@@ -12,24 +12,27 @@ class UsersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<MainCubit, MainCubitStates>(
-        listener: (ctx, state) {},
-        builder: (ctx, state) {
-          var cubit = MainCubit.get(context);
-          return state is UsersLoadingState
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.separated(
-                  itemBuilder: (context, index) =>
-                      buildUserItem(cubit.users[index], context),
-                  separatorBuilder: (context, index) => Padding(
-                        padding: const EdgeInsets.only(left: 40.0, right: 30.0),
-                        child: Container(
-                          height: 1.0,
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                  itemCount: cubit.users.length);
-        });
+    return Builder(builder: (BuildContext context){
+      MainCubit.get(context).getAllUsers();
+      return BlocConsumer<MainCubit, MainCubitStates>(
+          listener: (ctx, state) {},
+          builder: (ctx, state) {
+            var cubit = MainCubit.get(context);
+            return state is UsersLoadingState
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.separated(
+                itemBuilder: (context, index) =>
+                    buildUserItem(cubit.users[index], context),
+                separatorBuilder: (context, index) => Padding(
+                  padding: const EdgeInsets.only(left: 40.0, right: 30.0),
+                  child: Container(
+                    height: 1.0,
+                    color: Colors.grey[300],
+                  ),
+                ),
+                itemCount: cubit.users.length);
+          });
+    });
   }
 
   Widget buildUserItem(UserModel user, BuildContext context) => InkWell(

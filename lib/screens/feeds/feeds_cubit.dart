@@ -18,17 +18,21 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
     emit(PostsLoadingState());
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
+        .orderBy('dateTime')
         .get()
         .then((value) {
-      for (var element in value.docs) {
-        getLikes(element).then((value) {
-          getComments(element).then((value) {
-            postsIds.add(element.id);
-            posts.add(PostModel.fromJson(element.data()));
-          }).catchError((error) {});
-        }).catchError((error) {});
-      }
-
+     if(value.docs.isEmpty){
+       emit(NoPostsState());
+     }else{
+       for (var element in value.docs) {
+         getLikes(element).then((value) {
+           getComments(element).then((value) {
+             postsIds.add(element.id);
+             posts.add(PostModel.fromJson(element.data()));
+           }).catchError((error) {});
+         }).catchError((error) {});
+       }
+     }
     }).catchError((error) {
       emit(PostsErrorState(error.toString()));
     });

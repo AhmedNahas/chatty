@@ -1,4 +1,5 @@
 import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
+import 'package:chatty/constants/constants.dart';
 import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/main_cubit/states.dart';
 import 'package:chatty/screens/edit_profile/edit_profile_screen.dart';
@@ -31,7 +32,7 @@ class SettingsScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10.0),
                           image: DecorationImage(
                             fit: BoxFit.cover,
-                            image: NetworkImage(cubit.userModel!.cover),
+                            image: NetworkImage(userModel!.cover),
                           ),
                         ),
                       ),
@@ -42,18 +43,18 @@ class SettingsScreen extends StatelessWidget {
                           Theme.of(context).scaffoldBackgroundColor,
                       child: CircleAvatar(
                         radius: 60.0,
-                        backgroundImage: NetworkImage(cubit.userModel!.image),
+                        backgroundImage: NetworkImage(userModel!.image),
                       ),
                     ),
                   ],
                 ),
               ),
               Text(
-                cubit.userModel!.name,
+                userModel!.name,
                 style: Theme.of(context).textTheme.bodyText1,
               ),
               Text(
-                cubit.userModel!.bio,
+                userModel!.bio,
                 style: Theme.of(context).textTheme.caption,
               ),
               Padding(

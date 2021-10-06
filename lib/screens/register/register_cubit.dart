@@ -1,3 +1,4 @@
+import 'package:chatty/constants/constants.dart';
 import 'package:chatty/model/user_model.dart' as new_user;
 import 'package:chatty/screens/register/register_states.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41,6 +42,7 @@ class RegisterCubit extends Cubit<RegisterStates> {
         image:
             "https://cdn.dribbble.com/users/1355613/screenshots/15594500/media/aea41a7cf22d09be0bb41afa85be2f5e.jpg?compress=1&resize=1200x900",
         bio: "write your bio ...",
+        firebaseToken: fireBaseToken.toString(),
         cover:
             "https://cdn.dribbble.com/users/1139587/screenshots/15315651/media/902bb8dcecb3af51092656f6467dba3f.jpg?compress=1&resize=1200x900");
     FirebaseFirestore.instance

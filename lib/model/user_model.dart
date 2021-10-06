@@ -7,6 +7,7 @@ class UserModel {
   late String image;
   late String cover;
   late String bio;
+  late String firebaseToken;
 
   UserModel({
     required this.name,
@@ -17,6 +18,7 @@ class UserModel {
     required this.image,
     required this.cover,
     required this.bio,
+    required this.firebaseToken,
   });
 
   UserModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class UserModel {
     image = json['image'];
     cover = json['cover'];
     bio = json['bio'];
+    firebaseToken = json['firebaseToken'];
   }
 
   Map<String, dynamic> toJson() {
@@ -40,6 +43,7 @@ class UserModel {
       'image': image,
       'cover': cover,
       'bio': bio,
+      'firebaseToken': firebaseToken,
     };
   }
 }

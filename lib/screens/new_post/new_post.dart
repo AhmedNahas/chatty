@@ -1,4 +1,5 @@
 import 'package:chatty/components/reusable_comp/widgets/reusable_component.dart';
+import 'package:chatty/constants/constants.dart';
 import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/main_cubit/states.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,7 +29,7 @@ class NewPost extends StatelessWidget {
                       },
                       child: const Text('Post')),
                 ]),
-            body: Padding(
+            body: userModel != null ? Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
@@ -40,12 +41,12 @@ class NewPost extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 25.0,
-                        backgroundImage: NetworkImage(cubit.userModel!.image),
+                        backgroundImage: NetworkImage(userModel!.image),
                       ),
                       const SizedBox(
                         width: 10.0,
                       ),
-                      Text(cubit.userModel!.name,
+                      Text(userModel!.name,
                           style: Theme.of(context).textTheme.subtitle1!),
                     ],
                   ),
@@ -110,7 +111,7 @@ class NewPost extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
+            ) : const Center(child: CircularProgressIndicator()),
           );
         });
   }

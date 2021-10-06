@@ -2,12 +2,10 @@ import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/screens/feeds/feeds_cubit.dart';
 import 'package:chatty/screens/home/home_screen.dart';
 import 'package:chatty/screens/login/login_screen.dart';
-import 'package:chatty/screens/register/register_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'constants/constants.dart';
 import 'helper/cache_helper.dart';
 import 'main_cubit/states.dart';
@@ -16,6 +14,25 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await CacheHelper.init();
   await Firebase.initializeApp();
+  FirebaseMessaging.instance.getToken().then((value) {
+    print('user token: $value}');
+    fireBaseToken = value;});
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('Got a message whilst in the foreground!');
+    print('Message data: ${message.data}');
+
+    if (message.notification != null) {
+      print('Message also contained a notification: ${message.notification}');
+    }
+  });
+
+  Future<void> firebaseMessagingBackgroundHandler(
+      RemoteMessage message) async {
+    print('Message also contained a notification: ${message.notification}');
+  }
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   Widget startWidget;
   uid = CacheHelper.getData(key: Constants.documentName);
@@ -39,7 +56,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => MainCubit()..getUserData()..getAllUsers()),
+        BlocProvider(
+            create: (context) => MainCubit()
+              ..getUserData()),
         BlocProvider(create: (context) => FeedsCubit()..getPosts())
       ],
       child: BlocConsumer<MainCubit, MainCubitStates>(

@@ -1,4 +1,5 @@
 import 'package:chatty/components/reusable_comp/widgets/reusable_component.dart';
+import 'package:chatty/constants/constants.dart';
 import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/main_cubit/states.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,13 +22,13 @@ class EditProfileScreen extends StatelessWidget {
       builder: (ctx, state) {
         var cubit = MainCubit.get(context);
 
-        nameController.text = cubit.userModel!.name;
-        bioController.text = cubit.userModel!.bio;
-        phoneController.text = cubit.userModel!.phone;
+        nameController.text = userModel!.name;
+        bioController.text = userModel!.bio;
+        phoneController.text = userModel!.phone;
 
         ImageProvider showProfileImage() {
           if (cubit.profileImage == null) {
-            return NetworkImage(cubit.userModel!.image);
+            return NetworkImage(userModel!.image);
           } else {
             return FileImage(cubit.profileImage!);
           }
@@ -35,7 +36,7 @@ class EditProfileScreen extends StatelessWidget {
 
         ImageProvider showCoverImage() {
           if (cubit.coverImage == null) {
-            return NetworkImage(cubit.userModel!.cover);
+            return NetworkImage(userModel!.cover);
           } else {
             return FileImage(cubit.coverImage!);
           }

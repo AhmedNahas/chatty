@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:chatty/constants/constants.dart';
@@ -15,13 +16,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:http/http.dart' as http;
 
 class MainCubit extends Cubit<MainCubitStates> {
   MainCubit() : super(MainCubitInitialState());
 
   static MainCubit get(context) => BlocProvider.of(context);
 
-  UserModel? userModel;
   String? profileImageUrl;
   String? coverImageUrl;
   int currentIndex = 0;
@@ -87,20 +88,14 @@ class MainCubit extends Cubit<MainCubitStates> {
   Future<firebase_storage.TaskSnapshot> uploadProfilePicture() async {
     return await firebase_storage.FirebaseStorage.instance
         .ref()
-        .child('users/${Uri
-        .file(profileImage!.path)
-        .pathSegments
-        .last}')
+        .child('users/${Uri.file(profileImage!.path).pathSegments.last}')
         .putFile(profileImage!);
   }
 
   Future<firebase_storage.TaskSnapshot> uploadCoverPicture() async {
     return await firebase_storage.FirebaseStorage.instance
         .ref()
-        .child('users/${Uri
-        .file(coverImage!.path)
-        .pathSegments
-        .last}')
+        .child('users/${Uri.file(coverImage!.path).pathSegments.last}')
         .putFile(coverImage!);
   }
 
@@ -150,7 +145,7 @@ class MainCubit extends Cubit<MainCubitStates> {
         bio: bio,
         cover: coverImageUrl!,
         uid: userModel!.uid,
-        email: userModel!.email);
+        email: userModel!.email, firebaseToken: fireBaseToken.toString());
 
     FirebaseFirestore.instance
         .collection('users')
@@ -179,10 +174,7 @@ class MainCubit extends Cubit<MainCubitStates> {
     if (postImageFile != null) {
       firebase_storage.FirebaseStorage.instance
           .ref()
-          .child('posts/${Uri
-          .file(postImageFile!.path)
-          .pathSegments
-          .last}')
+          .child('posts/${Uri.file(postImageFile!.path).pathSegments.last}')
           .putFile(postImageFile!)
           .then((v) {
         v.ref.getDownloadURL().then((postImageUrl) {
@@ -272,6 +264,7 @@ class MainCubit extends Cubit<MainCubitStates> {
         .collection(Constants.collectionUsers)
         .get()
         .then((value) {
+      users.clear();
       for (var element in value.docs) {
         if (element.data()['uid'] != uid) {
           users.add(UserModel.fromJson(element.data()));
@@ -288,6 +281,7 @@ class MainCubit extends Cubit<MainCubitStates> {
     required String dateTime,
     required String msg,
     required String msgType,
+    required String userToken,
   }) {
     MessageModel newMessage = MessageModel(
         senderId: userModel!.uid,
@@ -297,16 +291,15 @@ class MainCubit extends Cubit<MainCubitStates> {
         msgType: msgType);
 
     FirebaseFirestore.instance
-    .collection(Constants.collectionUsers)
-    .doc(userModel!.uid)
-    .collection(Constants.collectionChats)
-    .doc(receiverId)
-    .collection(Constants.collectionMessages)
-    .add(newMessage.toJson())
-    .then((value) {
+        .collection(Constants.collectionUsers)
+        .doc(userModel!.uid)
+        .collection(Constants.collectionChats)
+        .doc(receiverId)
+        .collection(Constants.collectionMessages)
+        .add(newMessage.toJson())
+        .then((value) {
       emit(SendMessageSuccessState());
-    })
-    .catchError((error){
+    }).catchError((error) {
       emit(SendMessageErrorState(error.toString()));
     });
 
@@ -318,11 +311,83 @@ class MainCubit extends Cubit<MainCubitStates> {
         .collection(Constants.collectionMessages)
         .add(newMessage.toJson())
         .then((value) {
+          // List<String> receivers = [];
+          // receivers.add(receiverId);
+          sendNotification(userToken,msg);
       emit(SendMessageSuccessState());
-    })
-        .catchError((error){
+    }).catchError((error) {
       emit(SendMessageErrorState(error.toString()));
     });
+  }
 
+  List<MessageModel> messages = [];
+
+  void getAllMessages({
+    required String receiverId,
+  }) {
+    FirebaseFirestore.instance
+        .collection(Constants.collectionUsers)
+        .doc(userModel!.uid)
+        .collection(Constants.collectionChats)
+        .doc(receiverId)
+        .collection(Constants.collectionMessages)
+        .orderBy('dateTime')
+        .snapshots()
+        .listen((event) {
+      messages = [];
+      for (var element in event.docs) {
+        messages.add(MessageModel.fromJson(element.data()));
+        print('hit server');
+      }
+      emit(SendMessageSuccessState());
+    });
+  }
+
+  Future<bool> sendNotification(String userToken, String msg) async {
+
+    const postUrl = 'https://fcm.googleapis.com/fcm/send';
+    final data = {
+      "to" : userToken,
+      "notification" : {
+        "title": userModel!.name,
+        "body" : msg,
+        "sound" : "default",
+      },
+      "android" : {
+        "priority": "HIGH",
+        "notification" : {
+          "notification_priority": "PRIORITY_MAX",
+          "sound" : "default",
+          "default_sound" : true,
+          "default_vibrate_timings" : true,
+          "default_light_settings" : true,
+        }
+      },
+      "data" : {
+        "type": "order",
+        "id" : "89",
+        "click_action" : "FLUTTER_NOTIFICATION_CLICK",
+      }
+    };
+
+    final headers = {
+      'content-type': 'application/json',
+      'Authorization': Constants.firebaseTokenAPIFCM // 'key=YOUR_SERVER_KEY'
+    };
+
+    final response = await http.post(Uri.parse(postUrl),
+        body: json.encode(data),
+        encoding: Encoding.getByName('utf-8'),
+        headers: headers);
+
+    if (response.statusCode == 200) {
+      // on success do sth
+      print('test ok push CFM');
+      return true;
+    } else {
+      print(' CFM error');
+      // on failure do sth
+      return false;
+    }
   }
 }

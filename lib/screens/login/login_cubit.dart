@@ -1,5 +1,8 @@
 import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
+import 'package:chatty/constants/constants.dart';
+import 'package:chatty/model/user_model.dart';
 import 'package:chatty/screens/login/login_states.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,10 +19,22 @@ class LoginCubit extends Cubit<LoginStates> {
         .signInWithEmailAndPassword(email: email, password: password)
         .then((value) {
           emit(LoginSuccessState(value.user!.uid));
+
+          getUserData(value.user!.uid);
       showToast(text: "Success", color: ToastColors.SUCCESS);
     }).catchError((error) {
       emit(LoginErrorState(error.toString()));
       showToast(text: error.toString(), color: ToastColors.ERROR);
+    });
+  }
+
+  void getUserData(String uid) {
+    FirebaseFirestore.instance
+        .collection(Constants.collectionUsers)
+        .doc(uid)
+        .get()
+        .then((value) {
+      userModel = UserModel.fromJson(value.data()!);
     });
   }
 }

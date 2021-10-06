@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/components/reusable_comp/widgets/reusable_component.dart';
 import 'package:chatty/screens/home/home_screen.dart';
+import 'package:chatty/screens/login/login_screen.dart';
 import 'package:chatty/screens/register/register_cubit.dart';
 import 'package:chatty/screens/register/register_states.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,7 +23,7 @@ class RegisterScreen extends StatelessWidget {
       child: BlocConsumer<RegisterCubit, RegisterStates>(
         listener: (ctx, state) {
           if (state is CreateUserSuccessState) {
-            navigateAndFinish(context, HomeScreen());
+            navigateAndFinish(context, LoginScreen());
           }
         },
         builder: (ctx, state) {

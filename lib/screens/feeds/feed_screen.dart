@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_conditional_rendering/flutter_conditional_rendering.dart';
 
 import 'feeds_states.dart';
 
@@ -26,7 +25,7 @@ class FeedScreen extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   children: [
-                    /*Card(
+                    state is NoPostsState ? Card(
                       elevation: 10.0,
                       clipBehavior: Clip.antiAliasWithSaveLayer,
                       margin: const EdgeInsets.all(8.0),
@@ -51,7 +50,7 @@ class FeedScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                    ),*/
+                    ) :
                     ListView.separated(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
