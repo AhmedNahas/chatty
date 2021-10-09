@@ -15,24 +15,9 @@ void main() async {
   await CacheHelper.init();
   await Firebase.initializeApp();
   FirebaseMessaging.instance.getToken().then((value) {
-    print('user token: $value}');
-    fireBaseToken = value;});
-
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('Got a message whilst in the foreground!');
-    print('Message data: ${message.data}');
-
-    if (message.notification != null) {
-      print('Message also contained a notification: ${message.notification}');
-    }
+    fireBaseToken = value;
+    newFireBaseToken = value;
   });
-
-  Future<void> firebaseMessagingBackgroundHandler(
-      RemoteMessage message) async {
-    print('Message also contained a notification: ${message.notification}');
-  }
-
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   Widget startWidget;
   uid = CacheHelper.getData(key: Constants.documentName);
@@ -58,7 +43,11 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
             create: (context) => MainCubit()
-              ..getUserData()),
+              ..getUserData()
+              ..getAllUsers()
+              ..onMessageOpenedApp()
+              ..onBackgroundMessage()
+              ..onMessageReceived()),
         BlocProvider(create: (context) => FeedsCubit()..getPosts())
       ],
       child: BlocConsumer<MainCubit, MainCubitStates>(

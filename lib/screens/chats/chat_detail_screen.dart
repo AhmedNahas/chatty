@@ -1,3 +1,4 @@
+import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/constants/constants.dart';
 import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/main_cubit/states.dart';
@@ -10,14 +11,13 @@ import 'package:flutter_conditional_rendering/flutter_conditional_rendering.dart
 
 class ChatDetailsScreen extends StatelessWidget {
   UserModel user;
-
-  ChatDetailsScreen(this.user);
+  ChatDetailsScreen(this.user, {Key? key}) : super(key: key);
 
   var msgController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (BuildContext context){
+    return Builder(builder: (BuildContext context) {
       MainCubit.get(context).getAllMessages(receiverId: user.uid);
       return BlocConsumer<MainCubit, MainCubitStates>(
         listener: (ctx, state) {},
@@ -48,22 +48,27 @@ class ChatDetailsScreen extends StatelessWidget {
                   Conditional.single(
                       context: context,
                       conditionBuilder: (context) => cubit.messages.isNotEmpty,
-                      widgetBuilder: (context) => Expanded(
-                        child: ListView.separated(
-                            itemBuilder: (ctx, index) {
-                              if (cubit.messages[index].senderId ==
-                                  userModel!.uid) {
-                                return buildOtherMessage(
-                                    cubit.messages[index]);
-                              } else {
-                                return buildMyMessage(cubit.messages[index]);
-                              }
-                            },
-                            separatorBuilder: (ctx, index) =>
-                            const SizedBox(height: 10.0),
-                            itemCount: cubit.messages.length),
-                      ),
-                      fallbackBuilder: (context) => cubit.messages.isEmpty ? Container() : const Center(child: CircularProgressIndicator())),
+                      widgetBuilder: (context) =>
+                          Expanded(
+                            child: ListView.separated(
+                                itemBuilder: (ctx, index) {
+                                  if (cubit.messages[index].senderId ==
+                                      userModel!.uid) {
+                                    return buildOtherMessage(
+                                        cubit.messages[index]);
+                                  } else {
+                                    return buildMyMessage(
+                                        cubit.messages[index]);
+                                  }
+                                },
+                                separatorBuilder: (ctx, index) =>
+                                const SizedBox(height: 10.0),
+                                itemCount: cubit.messages.length),
+                          ),
+                      fallbackBuilder: (context) =>
+                      cubit.messages.isEmpty
+                          ? Container()
+                          : const Center(child: CircularProgressIndicator())),
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(
@@ -77,7 +82,8 @@ class ChatDetailsScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsetsDirectional.only(start: 8.0),
+                            padding: const EdgeInsetsDirectional.only(
+                                start: 8.0),
                             child: TextFormField(
                               controller: msgController,
                               decoration: const InputDecoration(
@@ -92,9 +98,10 @@ class ChatDetailsScreen extends StatelessWidget {
                             onPressed: () {
                               MainCubit.get(context).sendMessage(
                                   receiverId: user.uid,
-                                  dateTime: DateTime.now().toString(),
+                                  dateTime:getDateTimeFormatted(),
                                   msg: msgController.text,
-                                  msgType: 'txtMsg', userToken: user.firebaseToken);
+                                  msgType: 'txtMsg',
+                                  userToken: user.firebaseToken);
                               msgController.clear();
                             },
                             child: const Icon(

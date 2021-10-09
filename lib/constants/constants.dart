@@ -12,4 +12,5 @@ class Constants {
 }
 String? uid="";
 String? fireBaseToken;
+String? newFireBaseToken;
 UserModel? userModel;

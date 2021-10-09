@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/constants/constants.dart';
 import 'package:chatty/main_cubit/states.dart';
 import 'package:chatty/model/message_model.dart';
@@ -12,16 +13,22 @@ import 'package:chatty/screens/new_post/new_post.dart';
 import 'package:chatty/screens/settings/settings_screen.dart';
 import 'package:chatty/screens/users/users_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:http/http.dart' as http;
 
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  showToast(text: "onMessageBackground", color: ToastColors.SUCCESS);
+}
+
 class MainCubit extends Cubit<MainCubitStates> {
   MainCubit() : super(MainCubitInitialState());
 
   static MainCubit get(context) => BlocProvider.of(context);
+
 
   String? profileImageUrl;
   String? coverImageUrl;
@@ -57,6 +64,15 @@ class MainCubit extends Cubit<MainCubitStates> {
   void changeBottomNavScreen(int index) {
     if (index == 2) {
       emit(NewPostState());
+    }else if(index == 1 ){
+      if(msgCounter > 0){
+        msgCounter = 0;
+        currentIndex = index;
+        emit(NewMessageReceivedState(msgCounter));
+      }else{
+        currentIndex = index;
+        emit(BottomNavStates());
+      }
     } else {
       currentIndex = index;
       emit(BottomNavStates());
@@ -201,7 +217,7 @@ class MainCubit extends Cubit<MainCubitStates> {
       dateTime: dateTime,
     );
     FirebaseFirestore.instance
-        .collection('posts')
+        .collection(Constants.collectionPosts)
         .add(post.toJson())
         .then((value) {
       emit(CreatePostSuccessState());
@@ -213,36 +229,6 @@ class MainCubit extends Cubit<MainCubitStates> {
   void removePostImage() {
     postImageFile = null;
     emit(RemovePostImageState());
-  }
-
-  List<PostModel> posts = [];
-  List<String>? postsIds = [];
-  List<int>? likes = [];
-  List<int>? comments = [];
-
-  Future getLikes(QueryDocumentSnapshot<Map<String, dynamic>> element) async {
-    await element.reference
-        .collection(Constants.collectionLikes)
-        .get()
-        .then((likesV) {
-      print('${likesV.docs.length} likes');
-      likes!.add(likesV.docs.length);
-    }).catchError((error) {
-      print(error.toString());
-    });
-  }
-
-  Future getComments(
-      QueryDocumentSnapshot<Map<String, dynamic>> element) async {
-    await element.reference
-        .collection(Constants.collectionComments)
-        .get()
-        .then((commentsV) {
-      print('${commentsV.docs.length} comments');
-      comments!.add(commentsV.docs.length);
-    }).catchError((error) {
-      print(error.toString());
-    });
   }
 
   void commentOnPost(String postId, String comment) {
@@ -389,5 +375,22 @@ class MainCubit extends Cubit<MainCubitStates> {
       // on failure do sth
       return false;
     }
+  }
+int msgCounter =0;
+  void onMessageReceived() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      msgCounter++;
+      emit(NewMessageReceivedState(msgCounter));
+    });
+  }
+
+  void onMessageOpenedApp() {
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      showToast(text: "onMessageOpenedApp", color: ToastColors.SUCCESS);
+    });
+  }
+
+  void onBackgroundMessage() {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
 }

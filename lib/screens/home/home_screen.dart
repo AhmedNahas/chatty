@@ -23,11 +23,42 @@ class HomeScreen extends StatelessWidget {
           context: context,
           title: cubit.titles[cubit.currentIndex],
           actions: [
+            SizedBox(
+              width: 35.0,
+              child: Stack(
+                alignment: AlignmentDirectional.center,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                children: [
+                 const Icon(
+                    Icons.notification_important_outlined,
+                    color: Colors.black26,
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional.topEnd,
+                    child: Container(
+                      margin: const EdgeInsetsDirectional.only(top: 5.0),
+                      width: 18.0,
+                      height: 18.0,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: state is NewMessageReceivedState
+                          ? Center(child: Text(state.msgCounter.toString()))
+                          : Center(child: Text(cubit.msgCounter.toString())),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.notification_important_outlined,color: Colors.black26,)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.search,color: Colors.black26,)),
-          ], showLeading: false,
+                icon: const Icon(
+                  Icons.search,
+                  color: Colors.black26,
+                )),
+          ],
+          showLeading: false,
         ),
         body: cubit.screens[cubit.currentIndex],
         bottomNavigationBar: BottomNavigationBar(
@@ -35,32 +66,59 @@ class HomeScreen extends StatelessWidget {
           currentIndex: cubit.currentIndex,
           onTap: (index) => cubit.changeBottomNavScreen(index),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          items: const [
+          items: [
+            const BottomNavigationBarItem(
+              icon: Icon(
+                Icons.home_filled,
+                color: Colors.blueAccent,
+              ),
+              label: "Home",
+            ),
             BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home_filled,
-                  color: Colors.blueAccent,
-                ),
-                label: "Home",),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.chat_rounded,
-                  color: Colors.blueAccent,
+                icon: SizedBox(
+                  width: 30.0,
+                  height: 30.0,
+                  child: Stack(
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    children: [
+                      const Align(
+                        alignment: AlignmentDirectional.bottomStart,
+                        child: Icon(
+                          Icons.chat_rounded,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                      cubit.msgCounter > 0 ? Align(
+                        alignment: AlignmentDirectional.topEnd,
+                        child: Container(
+                          width: 18.0,
+                          height: 18.0,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: state is NewMessageReceivedState
+                              ? Center(child: Text(state.msgCounter.toString()))
+                              : Center(child: Text(cubit.msgCounter.toString())),
+                        ),
+                      ) : Container(),
+                    ],
+                  ),
                 ),
                 label: "Chats"),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
                 icon: Icon(
                   Icons.add_circle_outline,
                   color: Colors.blueAccent,
                 ),
                 label: "Add"),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
                 icon: Icon(
                   Icons.supervised_user_circle_sharp,
                   color: Colors.blueAccent,
                 ),
                 label: "Users"),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
                 icon: Icon(
                   Icons.settings,
                   color: Colors.blueAccent,

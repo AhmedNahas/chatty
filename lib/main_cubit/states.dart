@@ -67,6 +67,11 @@ class UsersErrorState extends MainCubitStates{
 
 class SendMessageSuccessState extends MainCubitStates{}
 
+class NewMessageReceivedState extends MainCubitStates{
+  int msgCounter;
+  NewMessageReceivedState(this.msgCounter);
+}
+
 class SendMessageErrorState extends MainCubitStates{
   final String error;
   SendMessageErrorState(this.error);

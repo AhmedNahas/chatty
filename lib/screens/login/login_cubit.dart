@@ -18,9 +18,7 @@ class LoginCubit extends Cubit<LoginStates> {
     FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password)
         .then((value) {
-          emit(LoginSuccessState(value.user!.uid));
-
-          getUserData(value.user!.uid);
+      getUserData(value.user!.uid);
       showToast(text: "Success", color: ToastColors.SUCCESS);
     }).catchError((error) {
       emit(LoginErrorState(error.toString()));
@@ -34,7 +32,54 @@ class LoginCubit extends Cubit<LoginStates> {
         .doc(uid)
         .get()
         .then((value) {
+      String token = value.data()!['firebaseToken'];
+      String storedToken = fireBaseToken!;
+      if (token != storedToken) {
+        updateUserToken(
+          name: value.data()!['name'],
+          phone: value.data()!['phone'],
+          bio: value.data()!['bio'],
+          image: value.data()!['image'],
+          cover: value.data()!['cover'],
+          newToken: newFireBaseToken!,
+          uid: value.data()!['uid'],
+          email: value.data()!['email'],
+        );
+      }else{
+        emit(LoginSuccessState(uid));
+      }
       userModel = UserModel.fromJson(value.data()!);
+    });
+  }
+
+  void updateUserToken({
+    required String name,
+    required String phone,
+    required String bio,
+    required String image,
+    required String cover,
+    required String newToken,
+    required String uid,
+    required String email,
+  }) {
+    UserModel user = UserModel(
+        name: name,
+        phone: phone,
+        isEmailVerified: true,
+        image: image,
+        bio: bio,
+        cover: cover,
+        uid: uid,
+        email: email,
+        firebaseToken: newToken);
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .update(user.toJson())
+        .then((value) {
+      emit(LoginSuccessState(uid));
+      print('update different token');
     });
   }
 }

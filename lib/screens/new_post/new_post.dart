@@ -1,3 +1,4 @@
+import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/components/reusable_comp/widgets/reusable_component.dart';
 import 'package:chatty/constants/constants.dart';
 import 'package:chatty/main_cubit/cubit.dart';
@@ -22,9 +23,8 @@ class NewPost extends StatelessWidget {
                 actions: [
                   TextButton(
                       onPressed: () {
-                        var date = DateTime.now();
                         cubit.createPostWithPicIfExist(
-                            dateTime: date.toString(),
+                            dateTime: getDateTimeFormatted(),
                             body: postController.text);
                       },
                       child: const Text('Post')),

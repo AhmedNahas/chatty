@@ -20,3 +20,12 @@ class LikesErrorState extends FeedCubitStates{
   LikesErrorState(this.error);
 }
 
+class ShowSendCommentState extends FeedCubitStates{
+  int index;
+  ShowSendCommentState(this.index);
+}
+
+class HideSendCommentState extends FeedCubitStates{}
+
+class UpdateLastCommentState extends FeedCubitStates{}
+
