@@ -28,7 +28,7 @@ class FeedScreen extends StatelessWidget {
                   if (state is NoPostsState)
                     buildNoPostsView(context)
                   else
-                    ListView.separated(
+                    cubit.posts.isEmpty && cubit.likes.isEmpty && cubit.comments.isEmpty ? const Center(child:CircularProgressIndicator()) :  ListView.separated(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemBuilder: (ctx, i) => Card(
@@ -250,7 +250,7 @@ class FeedScreen extends StatelessWidget {
                                             onPressed: () {
                                               cubit.likePost(
                                                   cubit.postsIds[
-                                                  i]);
+                                                  i],i);
                                             },
                                             iconSize: 20.0,
                                             icon: Icon(

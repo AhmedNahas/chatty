@@ -21,8 +21,8 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
         .orderBy('dateTime')
-        .get()
-        .then((value) async {
+        .snapshots()
+        .listen((value) async {
       posts.clear();
       postsIds.clear();
       likes.clear();
@@ -33,17 +33,20 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
         for (var element in value.docs) {
           postsIds.add(element.id);
           posts.add(PostModel.fromJson(element.data()));
-          await element.reference
+          postsIds = List.from(postsIds.reversed);
+          posts = List.from(posts.reversed);
+          element.reference
               .collection(Constants.collectionLikes)
-              .get()
-              .then((likesV) async {
+              .snapshots()
+              .listen((likesV) async {
             likes.add(likesV.docs.length);
-            await element.reference
+            likes = List.from(likes.reversed);
+            element.reference
                 .collection(Constants.collectionComments)
-                .get()
-                .then((commentsV) {
+                .snapshots()
+                .listen((commentsV) {
               secondComments = [];
-              commentsV.docs.forEach((element) {
+              for (var element in commentsV.docs) {
                 secondComments.add(CommentModel(
                     count: commentsV.docs.length,
                     userID: element.id,
@@ -51,15 +54,14 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
                     name: element.data()['name'],
                     time: element.data()['time'],
                     image: element.data()['image']));
-              });
+              }
               comments.add(secondComments);
-            }).catchError((error) {});
-          }).catchError((error) {});
+              comments = List.from(comments.reversed);
+              emit(PostsSuccessState());
+            });
+          });
         }
-        emit(PostsSuccessState());
       }
-    }).catchError((error) {
-      emit(PostsErrorState(error.toString()));
     });
   }
 
@@ -72,13 +74,14 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
     await element.reference.collection(Constants.collectionComments).get();
   }
 
-  void likePost(String postId) {
+  void likePost(String postId,int index) {
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
         .doc(postId)
         .collection(Constants.collectionLikes)
         .doc(uid)
         .set({'like': true}).then((value) {
+          likes.insert(index, likes[index]+1);
       emit(LikesSuccessState());
     }).catchError((error) {
       emit(LikesErrorState(error.toString()));

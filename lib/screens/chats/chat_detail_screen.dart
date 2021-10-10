@@ -124,41 +124,47 @@ class ChatDetailsScreen extends StatelessWidget {
   }
 
   Widget buildMyMessage(MessageModel message) {
-    return Align(
-      alignment: AlignmentDirectional.topStart,
-      child: Container(
-        decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: const BorderRadiusDirectional.only(
-              bottomEnd: Radius.circular(10.0),
-              topEnd: Radius.circular(10.0),
-              topStart: Radius.circular(10.0),
-            )),
-        padding: const EdgeInsets.symmetric(
-          vertical: 5.0,
-          horizontal: 10.0,
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Align(
+        alignment: AlignmentDirectional.topStart,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: const BorderRadiusDirectional.only(
+                bottomEnd: Radius.circular(10.0),
+                topEnd: Radius.circular(10.0),
+                topStart: Radius.circular(10.0),
+              )),
+          padding: const EdgeInsets.symmetric(
+            vertical: 5.0,
+            horizontal: 10.0,
+          ),
+          child: Text(message.msg),
         ),
-        child: Text(message.msg),
       ),
     );
   }
 
   Widget buildOtherMessage(MessageModel message) {
-    return Align(
-      alignment: AlignmentDirectional.bottomEnd,
-      child: Container(
-        decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(.2),
-            borderRadius: const BorderRadiusDirectional.only(
-              bottomStart: Radius.circular(10.0),
-              topEnd: Radius.circular(10.0),
-              topStart: Radius.circular(10.0),
-            )),
-        padding: const EdgeInsets.symmetric(
-          vertical: 5.0,
-          horizontal: 10.0,
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Align(
+        alignment: AlignmentDirectional.bottomEnd,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(.2),
+              borderRadius: const BorderRadiusDirectional.only(
+                bottomStart: Radius.circular(10.0),
+                topEnd: Radius.circular(10.0),
+                topStart: Radius.circular(10.0),
+              )),
+          padding: const EdgeInsets.symmetric(
+            vertical: 5.0,
+            horizontal: 10.0,
+          ),
+          child: Text(message.msg),
         ),
-        child: Text(message.msg),
       ),
     );
   }

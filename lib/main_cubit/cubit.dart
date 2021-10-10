@@ -320,10 +320,18 @@ class MainCubit extends Cubit<MainCubitStates> {
         .orderBy('dateTime')
         .snapshots()
         .listen((event) {
-      messages = [];
-      for (var element in event.docs) {
-        messages.add(MessageModel.fromJson(element.data()));
-        print('hit server');
+      // messages = [];
+      if(messages.isNotEmpty){
+        var length = messages.length;
+        for(int i = length ; i < event.docs.length ; i++){
+          print('no need to load all');
+          messages.add(MessageModel.fromJson(event.docs[i].data()));
+        }
+      }else{
+        for (var element in event.docs) {
+          messages.add(MessageModel.fromJson(element.data()));
+          print('load all');
+        }
       }
       emit(SendMessageSuccessState());
     });
