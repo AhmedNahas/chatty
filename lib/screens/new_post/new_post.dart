@@ -8,11 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NewPost extends StatelessWidget {
+  const NewPost({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var postController = TextEditingController();
     return BlocConsumer<MainCubit, MainCubitStates>(
-        listener: (ctx, state) {},
+        listener: (ctx, state) {
+          if(state is CreatePostSuccessState) Navigator.pop(context);
+        },
         builder: (ctx, state) {
           var cubit = MainCubit.get(context);
           return Scaffold(

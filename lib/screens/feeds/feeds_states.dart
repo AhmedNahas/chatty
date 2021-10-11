@@ -8,6 +8,8 @@ class NoPostsState extends FeedCubitStates{}
 
 class PostsSuccessState extends FeedCubitStates{}
 
+class IncomingPostsState extends FeedCubitStates{}
+
 class PostsErrorState extends FeedCubitStates{
   final String error;
   PostsErrorState(this.error);

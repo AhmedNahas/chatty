@@ -29,7 +29,6 @@ class MainCubit extends Cubit<MainCubitStates> {
 
   static MainCubit get(context) => BlocProvider.of(context);
 
-
   String? profileImageUrl;
   String? coverImageUrl;
   int currentIndex = 0;
@@ -64,12 +63,12 @@ class MainCubit extends Cubit<MainCubitStates> {
   void changeBottomNavScreen(int index) {
     if (index == 2) {
       emit(NewPostState());
-    }else if(index == 1 ){
-      if(msgCounter > 0){
+    } else if (index == 1) {
+      if (msgCounter > 0) {
         msgCounter = 0;
         currentIndex = index;
         emit(NewMessageReceivedState(msgCounter));
-      }else{
+      } else {
         currentIndex = index;
         emit(BottomNavStates());
       }
@@ -161,7 +160,8 @@ class MainCubit extends Cubit<MainCubitStates> {
         bio: bio,
         cover: coverImageUrl!,
         uid: userModel!.uid,
-        email: userModel!.email, firebaseToken: fireBaseToken.toString());
+        email: userModel!.email,
+        firebaseToken: fireBaseToken.toString());
 
     FirebaseFirestore.instance
         .collection('users')
@@ -215,6 +215,8 @@ class MainCubit extends Cubit<MainCubitStates> {
       body: body,
       postImage: postImage ?? "",
       dateTime: dateTime,
+      likes: [],
+      isLiked: false,
     );
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
@@ -297,9 +299,9 @@ class MainCubit extends Cubit<MainCubitStates> {
         .collection(Constants.collectionMessages)
         .add(newMessage.toJson())
         .then((value) {
-          // List<String> receivers = [];
-          // receivers.add(receiverId);
-          sendNotification(userToken,msg);
+      // List<String> receivers = [];
+      // receivers.add(receiverId);
+      sendNotification(userToken, msg);
       emit(SendMessageSuccessState());
     }).catchError((error) {
       emit(SendMessageErrorState(error.toString()));
@@ -321,13 +323,13 @@ class MainCubit extends Cubit<MainCubitStates> {
         .snapshots()
         .listen((event) {
       // messages = [];
-      if(messages.isNotEmpty){
+      if (messages.isNotEmpty) {
         var length = messages.length;
-        for(int i = length ; i < event.docs.length ; i++){
+        for (int i = length; i < event.docs.length; i++) {
           print('no need to load all');
           messages.add(MessageModel.fromJson(event.docs[i].data()));
         }
-      }else{
+      } else {
         for (var element in event.docs) {
           messages.add(MessageModel.fromJson(element.data()));
           print('load all');
@@ -338,29 +340,28 @@ class MainCubit extends Cubit<MainCubitStates> {
   }
 
   Future<bool> sendNotification(String userToken, String msg) async {
-
     const postUrl = 'https://fcm.googleapis.com/fcm/send';
     final data = {
-      "to" : userToken,
-      "notification" : {
+      "to": userToken,
+      "notification": {
         "title": userModel!.name,
-        "body" : msg,
-        "sound" : "default",
+        "body": msg,
+        "sound": "default",
       },
-      "android" : {
+      "android": {
         "priority": "HIGH",
-        "notification" : {
+        "notification": {
           "notification_priority": "PRIORITY_MAX",
-          "sound" : "default",
-          "default_sound" : true,
-          "default_vibrate_timings" : true,
-          "default_light_settings" : true,
+          "sound": "default",
+          "default_sound": true,
+          "default_vibrate_timings": true,
+          "default_light_settings": true,
         }
       },
-      "data" : {
+      "data": {
         "type": "order",
-        "id" : "89",
-        "click_action" : "FLUTTER_NOTIFICATION_CLICK",
+        "id": "89",
+        "click_action": "FLUTTER_NOTIFICATION_CLICK",
       }
     };
 
@@ -384,7 +385,9 @@ class MainCubit extends Cubit<MainCubitStates> {
       return false;
     }
   }
-int msgCounter =0;
+
+  int msgCounter = 0;
+
   void onMessageReceived() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       msgCounter++;

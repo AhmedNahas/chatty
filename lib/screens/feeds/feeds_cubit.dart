@@ -11,8 +11,8 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
   static FeedsCubit get(context) => BlocProvider.of(context);
 
   List<PostModel> posts = [];
+  List<PostModel> newPosts = [];
   List<String> postsIds = [];
-  List<int> likes = [];
   List<List<CommentModel>> comments = [];
   List<CommentModel> secondComments = [];
 
@@ -23,24 +23,20 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
         .orderBy('dateTime')
         .snapshots()
         .listen((value) async {
-      posts.clear();
-      postsIds.clear();
-      likes.clear();
-      comments.clear();
       if (value.docs.isEmpty) {
         emit(NoPostsState());
       } else {
-        for (var element in value.docs) {
-          postsIds.add(element.id);
-          posts.add(PostModel.fromJson(element.data()));
-          postsIds = List.from(postsIds.reversed);
-          posts = List.from(posts.reversed);
-          element.reference
-              .collection(Constants.collectionLikes)
-              .snapshots()
-              .listen((likesV) async {
-            likes.add(likesV.docs.length);
-            likes = List.from(likes.reversed);
+        if (posts.isNotEmpty) {
+          emit(IncomingPostsState());
+        } else {
+          posts.clear();
+          postsIds.clear();
+          comments.clear();
+          for (var element in value.docs) {
+            postsIds.add(element.id);
+            posts.add(PostModel.fromJson(element.data()));
+            postsIds = List.from(postsIds.reversed);
+            posts = List.from(posts.reversed);
             element.reference
                 .collection(Constants.collectionComments)
                 .snapshots()
@@ -59,30 +55,44 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
               comments = List.from(comments.reversed);
               emit(PostsSuccessState());
             });
-          });
+          }
         }
       }
     });
   }
 
-  Future getLikes(QueryDocumentSnapshot<Map<String, dynamic>> element) async {
-    element.reference.collection(Constants.collectionLikes).get();
+  Future<void> loadNewPosts() async {
+    posts.clear();
+    postsIds.clear();
+    comments.clear();
+    getPosts();
   }
 
-  Future getComments(
-      QueryDocumentSnapshot<Map<String, dynamic>> element) async {
-    await element.reference.collection(Constants.collectionComments).get();
-  }
-
-  void likePost(String postId,int index) {
+  void likePost({required PostModel postToLike, required String postId}) {
+    var liked = postToLike.isLiked!;
+    var uid = userModel!.uid;
+    var list = postToLike.likes!;
+    if (liked) {
+      list.removeWhere((element) => element == uid);
+    } else {
+      list.add(uid);
+    }
+    PostModel post = PostModel(
+      name: postToLike.name,
+      uid: postToLike.uid,
+      image: postToLike.image,
+      body: postToLike.body,
+      postImage: postToLike.postImage ?? "",
+      dateTime: postToLike.dateTime,
+      likes: list,
+      isLiked: liked ? false : true,
+    );
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
         .doc(postId)
-        .collection(Constants.collectionLikes)
-        .doc(uid)
-        .set({'like': true}).then((value) {
-          likes.insert(index, likes[index]+1);
-      emit(LikesSuccessState());
+        .update(post.toJson())
+        .then((value) {
+      loadNewPosts();
     }).catchError((error) {
       emit(LikesErrorState(error.toString()));
     });
@@ -101,7 +111,7 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
         .collection(Constants.collectionComments)
         .add(commentModel.toJson())
         .then((value) {
-      getPosts();
+      loadNewPosts();
     }).catchError((error) {});
   }
 
