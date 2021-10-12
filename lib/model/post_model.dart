@@ -6,7 +6,7 @@ class PostModel {
   late String body;
   late String? postImage;
   late List<String>? likes;
-  late bool? isLiked;
+  bool? isLiked = false;
 
   PostModel({
     required this.name,
@@ -16,7 +16,7 @@ class PostModel {
     required this.body,
     required this.postImage,
     required this.likes,
-    required this.isLiked,
+    this.isLiked = false,
   });
 
   PostModel.fromJson(Map<String, dynamic> json) {
@@ -32,7 +32,6 @@ class PostModel {
         likes!.add(v);
       });
     }
-    isLiked = json['isLiked'];
   }
 
   Map<String, dynamic> toJson() {
@@ -44,7 +43,6 @@ class PostModel {
     data['body'] = body;
     data['postImage'] = postImage;
     data['likes'] = likes!.map((v) => v).toList();
-    data['isLiked'] = isLiked;
     return data;
   }
 }

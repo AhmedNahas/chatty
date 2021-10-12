@@ -33,8 +33,17 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
           postsIds.clear();
           comments.clear();
           for (var element in value.docs) {
+            PostModel post = PostModel.fromJson(element.data());
+            if (post.likes!.isNotEmpty) {
+              for (var element in post.likes!) {
+                if (element == userModel!.uid) {
+                  post.isLiked = true;
+                  break;
+                }
+              }
+            }
             postsIds.add(element.id);
-            posts.add(PostModel.fromJson(element.data()));
+            posts.add(post);
             postsIds = List.from(postsIds.reversed);
             posts = List.from(posts.reversed);
             element.reference
@@ -92,26 +101,31 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
         .doc(postId)
         .update(post.toJson())
         .then((value) {
-      loadNewPosts();
+      // loadNewPosts();
+      postToLike.isLiked = liked ? false : true ;
+      emit(LikesSuccessState());
     }).catchError((error) {
       emit(LikesErrorState(error.toString()));
     });
   }
 
-  void commentOnPost(String postId, String comment, String dateTime) {
+  void commentOnPost(String postId, String comment, String dateTime, int postIndex) {
     CommentModel commentModel = CommentModel(
         userID: userModel!.uid,
         name: userModel!.name,
         image: userModel!.image,
         time: dateTime,
         comment: comment);
+    secondComments.add(commentModel);
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
         .doc(postId)
         .collection(Constants.collectionComments)
         .add(commentModel.toJson())
         .then((value) {
-      loadNewPosts();
+      // loadNewPosts();
+      comments.insert(postIndex,secondComments);
+      emit(UpdateLastCommentState());
     }).catchError((error) {});
   }
 

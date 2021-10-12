@@ -216,7 +216,6 @@ class MainCubit extends Cubit<MainCubitStates> {
       postImage: postImage ?? "",
       dateTime: dateTime,
       likes: [],
-      isLiked: false,
     );
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)

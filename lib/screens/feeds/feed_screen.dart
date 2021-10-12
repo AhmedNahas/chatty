@@ -185,7 +185,7 @@ class FeedScreen extends StatelessWidget {
                                                         const SizedBox(
                                                             width: 10.0),
                                                         Text(
-                                                          "${cubit.comments.isNotEmpty ? cubit.comments[i].length : 0} comment",
+                                                          "${cubit.comments.isEmpty ? 0 : cubit.comments[i].length} comment",
                                                           style:
                                                           Theme.of(context)
                                                               .textTheme
@@ -253,7 +253,7 @@ class FeedScreen extends StatelessWidget {
                                                                           i],
                                                                       commentController
                                                                           .text,
-                                                                      getDateTimeFormatted());
+                                                                      getDateTimeFormatted(),i);
                                                                   commentController
                                                                       .clear();
                                                                   cubit.changeCommentButton(
@@ -287,7 +287,7 @@ class FeedScreen extends StatelessWidget {
                                                   ),
                                                 ],
                                               ),
-                                              cubit.comments[i].isNotEmpty
+                                              cubit.comments.isNotEmpty && cubit.comments[i].isNotEmpty
                                                   ? Padding(
                                                       padding:
                                                           const EdgeInsetsDirectional
@@ -381,7 +381,7 @@ class FeedScreen extends StatelessWidget {
                   topLeft: Radius.circular(45.0),
                   topRight: Radius.circular(45.0)),
               color: Colors.grey[300]!.withAlpha(1)),
-          child: cubit.comments[index].isNotEmpty
+          child: cubit.comments.isNotEmpty && cubit.comments[index].isNotEmpty
               ? ListView.separated(
                   itemBuilder: (ctx, i) => Row(
                         children: [
