@@ -13,12 +13,15 @@ class NewPost extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var postController = TextEditingController();
+    var cubit = MainCubit.get(context);
     return BlocConsumer<MainCubit, MainCubitStates>(
         listener: (ctx, state) {
-          if(state is CreatePostSuccessState) Navigator.pop(context);
+          if(state is CreatePostSuccessState) {
+            cubit.removePostImage();
+            Navigator.pop(context);
+          }
         },
         builder: (ctx, state) {
-          var cubit = MainCubit.get(context);
           return Scaffold(
             appBar: defaultAppBar(
                 context: context,

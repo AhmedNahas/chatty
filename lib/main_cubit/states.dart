@@ -72,14 +72,12 @@ class NewMessageReceivedState extends MainCubitStates{
   NewMessageReceivedState(this.msgCounter);
 }
 
+class NewNotificationState extends MainCubitStates{
+  int notificationCounter;
+  NewNotificationState(this.notificationCounter);
+}
+
 class SendMessageErrorState extends MainCubitStates{
   final String error;
   SendMessageErrorState(this.error);
-}
-
-class GetAllMessageSuccessState extends MainCubitStates{}
-
-class GetAllMessageErrorState extends MainCubitStates{
-  final String error;
-  GetAllMessageErrorState(this.error);
 }

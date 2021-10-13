@@ -212,14 +212,11 @@ class FeedScreen extends StatelessWidget {
                                                   ),
                                                   Expanded(
                                                     child: TextFormField(
-                                                      onChanged: (s) {
+                                                      onTap: () {
                                                         cubit
-                                                            .changeCommentButton(
-                                                                s, i);
+                                                            .changeCommentButton(index: i);
                                                       },
-                                                      controller: state
-                                                                  is ShowSendCommentState &&
-                                                              state.index == i
+                                                      controller: state is ShowSendCommentState && state.index == i
                                                           ? commentController
                                                           : TextEditingController(),
                                                       decoration:
@@ -256,10 +253,7 @@ class FeedScreen extends StatelessWidget {
                                                                       getDateTimeFormatted(),i);
                                                                   commentController
                                                                       .clear();
-                                                                  cubit.changeCommentButton(
-                                                                      commentController
-                                                                          .text,
-                                                                      i);
+                                                                  cubit.changeCommentButton(index: i,s:  commentController.text);
                                                                 }
                                                               },
                                                               iconSize: 20.0,

@@ -1,3 +1,4 @@
+import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/constants/constants.dart';
 import 'package:chatty/model/comment_model.dart';
 import 'package:chatty/model/post_model.dart';
@@ -63,6 +64,7 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
     } else {
       postToLike.likes!.add(uid);
     }
+    bool isLiked = liked ? false : true;
     PostModel post = PostModel(
       name: postToLike.name,
       uid: postToLike.uid,
@@ -71,22 +73,32 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
       postImage: postToLike.postImage ?? "",
       dateTime: postToLike.dateTime,
       likes: postToLike.likes!,
-      isLiked: liked ? false : true,
+      isLiked: isLiked,
       comments: postToLike.comments,
+      firebaseToken: postToLike.firebaseToken,
     );
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
         .doc(postId)
         .update(post.toJson())
         .then((value) {
-      postToLike.isLiked = liked ? false : true ;
+      if (userModel!.uid != post.uid && isLiked) {
+        sendNotification(
+            userToken: post.firebaseToken!,
+            msg: '${userModel!.name} liked your post',
+            type: 'notification',
+            userImage: userModel!.image,
+            time: getDateTimeFormatted());
+      }
+      postToLike.isLiked = liked ? false : true;
       emit(LikesSuccessState());
     }).catchError((error) {
       emit(LikesErrorState(error.toString()));
     });
   }
 
-  void commentOnPost(PostModel postToLike, String postId, String comment, String dateTime, int postIndex) {
+  void commentOnPost(PostModel postToLike, String postId, String comment,
+      String dateTime, int postIndex) {
     CommentModel commentModel = CommentModel(
         userID: userModel!.uid,
         name: userModel!.name,
@@ -104,17 +116,26 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
       likes: postToLike.likes!,
       isLiked: postToLike.isLiked,
       comments: postToLike.comments,
+      firebaseToken: postToLike.firebaseToken,
     );
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
         .doc(postId)
         .update(post.toJson())
         .then((value) {
+      if (userModel!.uid != post.uid) {
+        sendNotification(
+            userToken: post.firebaseToken!,
+            msg: '${userModel!.name} commented on your post',
+            type: 'notification',
+            userImage: userModel!.image,
+            time: getDateTimeFormatted());
+      }
       emit(UpdateLastCommentState());
     }).catchError((error) {});
   }
 
-  void changeCommentButton(String s, int index) {
+  void changeCommentButton({String s = ' ', required int index}) {
     if (s.isNotEmpty)
       emit(ShowSendCommentState(index));
     else

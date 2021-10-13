@@ -1,10 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/constants/constants.dart';
 import 'package:chatty/main_cubit/states.dart';
 import 'package:chatty/model/message_model.dart';
+import 'package:chatty/model/notification_model.dart';
 import 'package:chatty/model/post_model.dart';
 import 'package:chatty/model/user_model.dart';
 import 'package:chatty/screens/chats/chat_screen.dart';
@@ -18,7 +18,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:http/http.dart' as http;
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   showToast(text: "onMessageBackground", color: ToastColors.SUCCESS);
@@ -217,6 +216,7 @@ class MainCubit extends Cubit<MainCubitStates> {
       dateTime: dateTime,
       likes: [],
       comments: [],
+      firebaseToken: userModel!.firebaseToken,
     );
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
@@ -288,9 +288,11 @@ class MainCubit extends Cubit<MainCubitStates> {
         .collection(Constants.collectionMessages)
         .add(newMessage.toJson())
         .then((value) {
-      // List<String> receivers = [];
-      // receivers.add(receiverId);
-      sendNotification(userToken, msg);
+      sendNotification(
+          userToken: userToken,
+          msg: msg,
+          title: userModel!.name,
+          type: 'inbox');
       emit(SendMessageSuccessState());
     }).catchError((error) {
       emit(SendMessageErrorState(error.toString()));
@@ -328,59 +330,23 @@ class MainCubit extends Cubit<MainCubitStates> {
     });
   }
 
-  Future<bool> sendNotification(String userToken, String msg) async {
-    const postUrl = 'https://fcm.googleapis.com/fcm/send';
-    final data = {
-      "to": userToken,
-      "notification": {
-        "title": userModel!.name,
-        "body": msg,
-        "sound": "default",
-      },
-      "android": {
-        "priority": "HIGH",
-        "notification": {
-          "notification_priority": "PRIORITY_MAX",
-          "sound": "default",
-          "default_sound": true,
-          "default_vibrate_timings": true,
-          "default_light_settings": true,
-        }
-      },
-      "data": {
-        "type": "order",
-        "id": "89",
-        "click_action": "FLUTTER_NOTIFICATION_CLICK",
-      }
-    };
-
-    final headers = {
-      'content-type': 'application/json',
-      'Authorization': Constants.firebaseTokenAPIFCM // 'key=YOUR_SERVER_KEY'
-    };
-
-    final response = await http.post(Uri.parse(postUrl),
-        body: json.encode(data),
-        encoding: Encoding.getByName('utf-8'),
-        headers: headers);
-
-    if (response.statusCode == 200) {
-      // on success do sth
-      print('test ok push CFM');
-      return true;
-    } else {
-      print(' CFM error');
-      // on failure do sth
-      return false;
-    }
-  }
-
   int msgCounter = 0;
+  int notificationCounter = 0;
+  List<NotificationModel> notifications = [];
 
   void onMessageReceived() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      msgCounter++;
-      emit(NewMessageReceivedState(msgCounter));
+      if (message.data['type'] == 'inbox') {
+        msgCounter++;
+        emit(NewMessageReceivedState(msgCounter));
+      } else {
+        notifications.add(NotificationModel(
+            msg: message.notification!.body!,
+            image: message.data['userImage'],
+            time: message.data['time']));
+        notificationCounter++;
+        emit(NewNotificationState(notificationCounter));
+      }
     });
   }
 
@@ -392,5 +358,10 @@ class MainCubit extends Cubit<MainCubitStates> {
 
   void onBackgroundMessage() {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  }
+
+  void clearNotificationsBadge(){
+    notificationCounter = 0;
+    emit(NewNotificationState(notificationCounter));
   }
 }

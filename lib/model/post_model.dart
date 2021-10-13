@@ -7,6 +7,7 @@ class PostModel {
   late String dateTime;
   late String body;
   late String? postImage;
+  late String? firebaseToken;
   late List<String>? likes;
   late List<CommentModel>? comments;
   bool? isLiked = false;
@@ -18,6 +19,7 @@ class PostModel {
     required this.dateTime,
     required this.body,
     required this.postImage,
+    required this.firebaseToken,
     required this.likes,
     required this.comments,
     this.isLiked = false,
@@ -30,6 +32,7 @@ class PostModel {
     dateTime = json['dateTime'];
     body = json['body'];
     postImage = json['postImage'];
+    firebaseToken = json['firebaseToken'];
     if (json['likes'] != null) {
       likes = <String>[];
       json['likes'].forEach((v) {
@@ -53,6 +56,7 @@ class PostModel {
     data['dateTime'] = dateTime;
     data['body'] = body;
     data['postImage'] = postImage;
+    data['firebaseToken'] = firebaseToken;
     data['likes'] = likes!.map((v) => v).toList();
     data['comments'] = comments!.map((v) => v.toJson()).toList();
     return data;

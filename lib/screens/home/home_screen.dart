@@ -3,6 +3,7 @@ import 'package:chatty/components/reusable_comp/widgets/reusable_component.dart'
 import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/main_cubit/states.dart';
 import 'package:chatty/screens/new_post/new_post.dart';
+import 'package:chatty/screens/notification/notification_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,25 +30,35 @@ class HomeScreen extends StatelessWidget {
                 alignment: AlignmentDirectional.center,
                 clipBehavior: Clip.antiAliasWithSaveLayer,
                 children: [
-                 const Icon(
-                    Icons.notification_important_outlined,
+                  IconButton(
                     color: Colors.black26,
+                    icon: const Icon(Icons.notification_important_outlined),
+                    onPressed: () {
+                      cubit.clearNotificationsBadge();
+                      navigateTo(context, NotificationScreen());
+                    },
                   ),
-                  Align(
-                    alignment: AlignmentDirectional.topEnd,
-                    child: Container(
-                      margin: const EdgeInsetsDirectional.only(top: 5.0),
-                      width: 18.0,
-                      height: 18.0,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: state is NewMessageReceivedState
-                          ? Center(child: Text(state.msgCounter.toString()))
-                          : Center(child: Text(cubit.msgCounter.toString())),
-                    ),
-                  ),
+                  cubit.notificationCounter > 0
+                      ? Align(
+                          alignment: AlignmentDirectional.topEnd,
+                          child: Container(
+                            margin: const EdgeInsetsDirectional.only(top: 5.0),
+                            width: 18.0,
+                            height: 18.0,
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: state is NewNotificationState
+                                ? Center(
+                                    child: Text(
+                                        state.notificationCounter.toString()))
+                                : Center(
+                                    child: Text(
+                                        cubit.notificationCounter.toString())),
+                          ),
+                        )
+                      : Container(),
                 ],
               ),
             ),
@@ -88,20 +99,26 @@ class HomeScreen extends StatelessWidget {
                           color: Colors.blueAccent,
                         ),
                       ),
-                      cubit.msgCounter > 0 ? Align(
-                        alignment: AlignmentDirectional.topEnd,
-                        child: Container(
-                          width: 18.0,
-                          height: 18.0,
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: state is NewMessageReceivedState
-                              ? Center(child: Text(state.msgCounter.toString()))
-                              : Center(child: Text(cubit.msgCounter.toString())),
-                        ),
-                      ) : Container(),
+                      cubit.msgCounter > 0
+                          ? Align(
+                              alignment: AlignmentDirectional.topEnd,
+                              child: Container(
+                                width: 18.0,
+                                height: 18.0,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: state is NewMessageReceivedState
+                                    ? Center(
+                                        child:
+                                            Text(state.msgCounter.toString()))
+                                    : Center(
+                                        child:
+                                            Text(cubit.msgCounter.toString())),
+                              ),
+                            )
+                          : Container(),
                     ],
                   ),
                 ),
@@ -166,15 +183,4 @@ class HomeScreen extends StatelessWidget {
           )
         ],
       );
-
-//for email verification
-/* Conditional.single(
-  context: context,
-  conditionBuilder: (ctx) =>
-  MainCubit.get(context).userModel != null,
-  widgetBuilder: (ctx) => verifyEmail(ctx),
-  fallbackBuilder: (ctx) => const Center(
-  child: CircularProgressIndicator(),
-  ),
-  )*/
 }

@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:chatty/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 
 void navigateTo(context, widget) => Navigator.push(
   context,
@@ -63,4 +67,53 @@ String getDateTimeFormatted(){
       2, '0')} ${now.hour.toString().padLeft(
       2, '0')}-${now.minute.toString().padLeft(
       2, '0')}";
+}
+
+Future<bool> sendNotification(
+    {required String userToken,required String msg,required String type, String? title,String? userImage,String? time}) async {
+  const postUrl = 'https://fcm.googleapis.com/fcm/send';
+  final data = {
+    "to": userToken,
+    "notification": {
+      "title": title??'',
+      "body": msg,
+      "sound": "default",
+    },
+    "android": {
+      "priority": "HIGH",
+      "notification": {
+        "notification_priority": "PRIORITY_MAX",
+        "sound": "default",
+        "default_sound": true,
+        "default_vibrate_timings": true,
+        "default_light_settings": true,
+      }
+    },
+    "data": {
+      "type": type,
+      "userImage": userImage??'',
+      "time": time??'',
+      "click_action": "FLUTTER_NOTIFICATION_CLICK",
+    }
+  };
+
+  final headers = {
+    'content-type': 'application/json',
+    'Authorization': Constants.firebaseTokenAPIFCM // 'key=YOUR_SERVER_KEY'
+  };
+
+  final response = await http.post(Uri.parse(postUrl),
+      body: json.encode(data),
+      encoding: Encoding.getByName('utf-8'),
+      headers: headers);
+
+  if (response.statusCode == 200) {
+    // on success do sth
+    print('test ok push CFM');
+    return true;
+  } else {
+    print(' CFM error');
+    // on failure do sth
+    return false;
+  }
 }
