@@ -164,7 +164,7 @@ class MainCubit extends Cubit<MainCubitStates> {
         firebaseToken: fireBaseToken.toString());
 
     FirebaseFirestore.instance
-        .collection('users')
+        .collection(Constants.collectionUsers)
         .doc(uid)
         .update(user.toJson())
         .then((value) {
@@ -216,6 +216,7 @@ class MainCubit extends Cubit<MainCubitStates> {
       postImage: postImage ?? "",
       dateTime: dateTime,
       likes: [],
+      comments: [],
     );
     FirebaseFirestore.instance
         .collection(Constants.collectionPosts)
@@ -230,17 +231,6 @@ class MainCubit extends Cubit<MainCubitStates> {
   void removePostImage() {
     postImageFile = null;
     emit(RemovePostImageState());
-  }
-
-  void commentOnPost(String postId, String comment) {
-    FirebaseFirestore.instance
-        .collection(Constants.collectionPosts)
-        .doc(postId)
-        .collection(Constants.collectionComments)
-        .doc(uid)
-        .set({'comment': comment})
-        .then((value) {})
-        .catchError((error) {});
   }
 
   List<UserModel> users = [];

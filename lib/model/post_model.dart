@@ -1,3 +1,5 @@
+import 'package:chatty/model/comment_model.dart';
+
 class PostModel {
   late String name;
   late String uid;
@@ -6,6 +8,7 @@ class PostModel {
   late String body;
   late String? postImage;
   late List<String>? likes;
+  late List<CommentModel>? comments;
   bool? isLiked = false;
 
   PostModel({
@@ -16,6 +19,7 @@ class PostModel {
     required this.body,
     required this.postImage,
     required this.likes,
+    required this.comments,
     this.isLiked = false,
   });
 
@@ -32,6 +36,13 @@ class PostModel {
         likes!.add(v);
       });
     }
+    if (json['comments'] != null) {
+      comments = <CommentModel>[];
+      json['comments'].forEach((v) {
+        print(v.toString());
+        comments!.add(CommentModel.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -43,6 +54,7 @@ class PostModel {
     data['body'] = body;
     data['postImage'] = postImage;
     data['likes'] = likes!.map((v) => v).toList();
+    data['comments'] = comments!.map((v) => v.toJson()).toList();
     return data;
   }
 }

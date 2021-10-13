@@ -28,8 +28,7 @@ class FeedScreen extends StatelessWidget {
                     children: [
                       state is NoPostsState
                           ? buildNoPostsView(context)
-                          : cubit.posts.isEmpty &&
-                                  cubit.comments.isEmpty
+                          : cubit.posts.isEmpty
                               ? const Center(child: CircularProgressIndicator())
                               : ListView.separated(
                                   shrinkWrap: true,
@@ -185,7 +184,7 @@ class FeedScreen extends StatelessWidget {
                                                         const SizedBox(
                                                             width: 10.0),
                                                         Text(
-                                                          "${cubit.comments.isEmpty ? 0 : cubit.comments[i].length} comment",
+                                                          "${cubit.posts[i].comments!.isEmpty ? 0 : cubit.posts[i].comments!.length} comment",
                                                           style:
                                                           Theme.of(context)
                                                               .textTheme
@@ -249,6 +248,7 @@ class FeedScreen extends StatelessWidget {
                                                                     .text
                                                                     .isNotEmpty) {
                                                                   cubit.commentOnPost(
+                                                                    cubit.posts[i],
                                                                       cubit.postsIds[
                                                                           i],
                                                                       commentController
@@ -287,7 +287,7 @@ class FeedScreen extends StatelessWidget {
                                                   ),
                                                 ],
                                               ),
-                                              cubit.comments.isNotEmpty && cubit.comments[i].isNotEmpty
+                                              cubit.posts[i].comments!.isNotEmpty
                                                   ? Padding(
                                                       padding:
                                                           const EdgeInsetsDirectional
@@ -299,7 +299,7 @@ class FeedScreen extends StatelessWidget {
                                                             radius: 14.0,
                                                             backgroundImage:
                                                                 NetworkImage(cubit
-                                                                    .comments[i]
+                                                                    .posts[i].comments!
                                                                     .last
                                                                     .image!),
                                                           ),
@@ -309,7 +309,7 @@ class FeedScreen extends StatelessWidget {
                                                           Expanded(
                                                             child: Text(
                                                               cubit
-                                                                  .comments[i]
+                                                                  .posts[i].comments!
                                                                   .last
                                                                   .comment!,
                                                               overflow:
@@ -381,14 +381,14 @@ class FeedScreen extends StatelessWidget {
                   topLeft: Radius.circular(45.0),
                   topRight: Radius.circular(45.0)),
               color: Colors.grey[300]!.withAlpha(1)),
-          child: cubit.comments.isNotEmpty && cubit.comments[index].isNotEmpty
+          child: cubit.posts[index].comments!.isNotEmpty
               ? ListView.separated(
                   itemBuilder: (ctx, i) => Row(
                         children: [
                           CircleAvatar(
                             radius: 25.0,
                             backgroundImage:
-                                NetworkImage(cubit.comments[index][i].image!),
+                                NetworkImage(cubit.posts[index].comments![i].image!),
                           ),
                           const SizedBox(
                             width: 20.0,
@@ -405,14 +405,14 @@ class FeedScreen extends StatelessWidget {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            cubit.comments[index][i].name!,
+                                            cubit.posts[index].comments![i].name!,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .caption!,
                                           ),
                                         ),
                                         Text(
-                                          cubit.comments[index][i].time!,
+                                          cubit.posts[index].comments![i].time!,
                                           style: Theme.of(context)
                                               .textTheme
                                               .caption!
@@ -424,7 +424,7 @@ class FeedScreen extends StatelessWidget {
                                       height: 10.0,
                                     ),
                                     Text(
-                                      cubit.comments[index][i].comment!,
+                                      cubit.posts[index].comments![i].comment!,
                                       style: Theme.of(context)
                                           .textTheme
                                           .subtitle1!
@@ -441,7 +441,7 @@ class FeedScreen extends StatelessWidget {
                         ],
                       ),
                   separatorBuilder: (ctx, i) => const SizedBox(height: 10.0),
-                  itemCount: cubit.comments[index].length)
+                  itemCount: cubit.posts[index].comments!.length)
               : const Center(child: Text('No Comments')),
         ),
       );
