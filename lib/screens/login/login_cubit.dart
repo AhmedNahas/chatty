@@ -49,6 +49,8 @@ class LoginCubit extends Cubit<LoginStates> {
         emit(LoginSuccessState(uid));
       }
       userModel = UserModel.fromJson(value.data()!);
+    }).catchError((error){
+      showToast(text: error.toString(), color: ToastColors.ERROR);
     });
   }
 
