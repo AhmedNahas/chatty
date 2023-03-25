@@ -1,11 +1,7 @@
-import 'dart:ui';
-
 import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/constants/constants.dart';
 import 'package:chatty/screens/feeds/feeds_cubit.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'feeds_states.dart';
 
@@ -66,7 +62,7 @@ class FeedScreen extends StatelessWidget {
                                                           style: Theme.of(
                                                                   context)
                                                               .textTheme
-                                                              .caption!
+                                                              .bodySmall!
                                                               .copyWith(
                                                                   fontWeight:
                                                                       FontWeight
@@ -78,7 +74,7 @@ class FeedScreen extends StatelessWidget {
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
-                                                                  .caption!
+                                                                  .bodySmall!
                                                                   .copyWith(
                                                                       fontSize:
                                                                           10.0),
@@ -154,7 +150,7 @@ class FeedScreen extends StatelessWidget {
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
-                                                                  .caption,
+                                                                  .bodySmall,
                                                         )
                                                       ],
                                                     ),
@@ -188,7 +184,7 @@ class FeedScreen extends StatelessWidget {
                                                           style:
                                                           Theme.of(context)
                                                               .textTheme
-                                                              .caption,
+                                                              .bodySmall,
                                                         ),
                                                       ],
                                                     ),
@@ -357,7 +353,7 @@ class FeedScreen extends StatelessWidget {
                 "Meet\nnew\nfriends",
                 style: Theme.of(context)
                     .textTheme
-                    .subtitle1!
+                    .titleMedium!
                     .copyWith(fontStyle: FontStyle.italic),
               ),
             )
@@ -402,14 +398,14 @@ class FeedScreen extends StatelessWidget {
                                             cubit.posts[index].comments![i].name!,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .caption!,
+                                                .bodySmall!,
                                           ),
                                         ),
                                         Text(
                                           cubit.posts[index].comments![i].time!,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .caption!
+                                              .bodySmall!
                                               .copyWith(fontSize: 10.0),
                                         )
                                       ],
@@ -421,7 +417,7 @@ class FeedScreen extends StatelessWidget {
                                       cubit.posts[index].comments![i].comment!,
                                       style: Theme.of(context)
                                           .textTheme
-                                          .subtitle1!
+                                          .titleMedium!
                                           .copyWith(fontSize: 15.0),
                                     )
                                   ],

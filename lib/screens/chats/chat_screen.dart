@@ -2,7 +2,6 @@ import 'package:chatty/components/reusable_comp/func/reusable_func.dart';
 import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/main_cubit/states.dart';
 import 'package:chatty/model/user_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -52,7 +51,7 @@ class ChatScreen extends StatelessWidget {
           const SizedBox(
             width: 10.0,
           ),
-          Text(user.name, style: Theme.of(context).textTheme.subtitle1!),
+          Text(user.name, style: Theme.of(context).textTheme.titleMedium!),
         ],
       ),
     ),

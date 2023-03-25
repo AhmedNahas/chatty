@@ -32,9 +32,9 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  Widget startWidget;
+  final Widget startWidget;
 
-  MyApp(this.startWidget);
+  const MyApp(this.startWidget, {Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override

@@ -136,9 +136,10 @@ class FeedsCubit extends Cubit<FeedCubitStates> {
   }
 
   void changeCommentButton({String s = ' ', required int index}) {
-    if (s.isNotEmpty)
+    if (s.isNotEmpty) {
       emit(ShowSendCommentState(index));
-    else
+    } else {
       emit(HideSendCommentState());
+    }
   }
 }
