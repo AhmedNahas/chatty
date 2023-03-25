@@ -3,9 +3,13 @@ import 'package:chatty/constants/constants.dart';
 import 'package:chatty/main_cubit/cubit.dart';
 import 'package:chatty/main_cubit/states.dart';
 import 'package:chatty/screens/edit_profile/edit_profile_screen.dart';
+import 'package:chatty/screens/login/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../helper/cache_helper.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -132,8 +136,23 @@ class SettingsScreen extends StatelessWidget {
                     navigateTo(context, EditProfileScreen());
                   },
                   child: const Icon(Icons.edit),
-                )
-              ])
+                ),
+              ]),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        FirebaseAuth.instance.signOut().then((value) {
+                          CacheHelper.putData(key: "uid", value: "null");
+                          navigateTo(context, LoginScreen());
+                        });
+                      },
+                      child: const Icon(Icons.logout),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         );

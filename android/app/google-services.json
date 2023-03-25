@@ -37,6 +37,13 @@
             {
               "client_id": "411627281115-vgajrsr5ao83rs6ilgp53srmp9470u87.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "411627281115-83bnp192n2jp6qkqlp18gst3bhobkjfu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.chatty.chatty"
+              }
             }
           ]
         }
